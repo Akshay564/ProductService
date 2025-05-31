@@ -1,5 +1,6 @@
 package com.example.productservice.controllers;
 
+import com.example.productservice.exceptions.ProductNotFoundException;
 import com.example.productservice.models.Product;
 import com.example.productservice.services.ProductService;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class ProductController {
     }
 
     @GetMapping("{id}")
-    public Product getProductById(@PathVariable Long id) {
+    public Product getProductById(@PathVariable Long id) throws ProductNotFoundException {
         return  productService.getProductById(id);
     }
 
@@ -29,5 +30,15 @@ public class ProductController {
     @PutMapping("{id}")
     public Product updateProduct(@PathVariable Long id, @RequestBody Product product) {
         return  productService.replaceProduct(id, product);
+    }
+
+    @PostMapping()
+    public Product createProduct(@RequestBody Product product) {
+        return productService.createProduct(product);
+    }
+
+    @DeleteMapping("{id}")
+    public Product deleteProduct(@PathVariable Long id) throws ProductNotFoundException {
+        return  productService.deleteProduct(id);
     }
 }

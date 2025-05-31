@@ -1,8 +1,10 @@
 package com.example.productservice.services;
 
 import com.example.productservice.dtos.FakeStoreProductDto;
+import com.example.productservice.exceptions.ProductNotFoundException;
 import com.example.productservice.models.Category;
 import com.example.productservice.models.Product;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,19 +20,27 @@ public class FakeStoreProductService implements ProductService {
 
     private final RestTemplate restTemplate;
 
+    @Value("${api.host}")
+    private String apiHost;
+
     public FakeStoreProductService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
     @Override
-    public Product getProductById(Long id) {
-        FakeStoreProductDto fakeStoreProductDto = restTemplate.getForObject("https://fakestoreapi.com/products/" + id, FakeStoreProductDto.class);
+    public Product getProductById(Long id) throws ProductNotFoundException {
+        FakeStoreProductDto fakeStoreProductDto = restTemplate.getForObject(apiHost +"products/" + id, FakeStoreProductDto.class);
+
+        if(fakeStoreProductDto == null) {
+            throw  new ProductNotFoundException(100L, "Product not found for id:" + id);
+        }
+
         return getProductFromFakeStoreProduct(fakeStoreProductDto);
     }
 
     @Override
     public List<Product> getAllProducts() {
-        FakeStoreProductDto[] fakeStoreProductsDto =  restTemplate.getForObject("https://fakestoreapi.com/products", FakeStoreProductDto[].class);
+        FakeStoreProductDto[] fakeStoreProductsDto =  restTemplate.getForObject(apiHost + "products", FakeStoreProductDto[].class);
         return getProductsFromFakeStoreProducts(fakeStoreProductsDto);
     }
 
@@ -40,7 +50,27 @@ public class FakeStoreProductService implements ProductService {
 
         RequestCallback requestCallback = restTemplate.httpEntityCallback(fakeStoreProduct, FakeStoreProductDto.class);
         ResponseExtractor<ResponseEntity<FakeStoreProductDto>> responseExtractor = restTemplate.responseEntityExtractor(FakeStoreProductDto.class);
-        FakeStoreProductDto fakeStoreProductDto =  restTemplate.execute("https://fakestoreapi.com/products/" + id, HttpMethod.PUT, requestCallback, responseExtractor).getBody();
+        FakeStoreProductDto fakeStoreProductDto =  restTemplate.execute(apiHost + "products/" + id, HttpMethod.PUT, requestCallback, responseExtractor).getBody();
+
+        return getProductFromFakeStoreProduct(fakeStoreProductDto);
+    }
+
+    @Override
+    public Product createProduct(Product product) {
+        FakeStoreProductDto fakeStoreProduct = mapToFakeStoreProductDto(product);
+        FakeStoreProductDto fakeStoreProductFromServer =  restTemplate.postForObject(apiHost + "products", fakeStoreProduct, FakeStoreProductDto.class);
+        return getProductFromFakeStoreProduct(fakeStoreProductFromServer);
+    }
+
+    @Override
+    public Product deleteProduct(Long id) throws ProductNotFoundException {
+        RequestCallback requestCallback = restTemplate.acceptHeaderRequestCallback(FakeStoreProductDto.class);
+        ResponseExtractor<ResponseEntity<FakeStoreProductDto>> responseExtractor = restTemplate.responseEntityExtractor(FakeStoreProductDto.class);
+        FakeStoreProductDto fakeStoreProductDto =  restTemplate.execute(apiHost + "products/" + id, HttpMethod.DELETE, requestCallback, responseExtractor).getBody();
+
+        if(fakeStoreProductDto == null) {
+            throw  new ProductNotFoundException(100L, "Product not found for id:" + id);
+        }
 
         return getProductFromFakeStoreProduct(fakeStoreProductDto);
     }
