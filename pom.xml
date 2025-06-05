@@ -46,7 +46,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>Add commentMore actions
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.mysql/mysql-connector-j -->
