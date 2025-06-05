@@ -3,6 +3,7 @@ package com.example.productservice.controllers;
 import com.example.productservice.exceptions.ProductNotFoundException;
 import com.example.productservice.models.Product;
 import com.example.productservice.services.ProductService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public class ProductController {
 
     ProductService productService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(@Qualifier("selfProductService") ProductService productService) {
         this.productService = productService;
     }
 
