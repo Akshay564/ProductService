@@ -1,5 +1,6 @@
 package com.example.productservice.services;
 
+import com.example.productservice.dtos.ProductCreateRequest;
 import com.example.productservice.exceptions.ProductNotFoundException;
 import com.example.productservice.models.Product;
 
@@ -10,9 +11,9 @@ public interface ProductService {
 
     List<Product> getAllProducts();
 
-    Product replaceProduct(Long id, Product product);
+    Product replaceProduct(Long id, ProductCreateRequest product) throws ProductNotFoundException;
 
-    Product createProduct(Product product);
+    Product createProduct(ProductCreateRequest product);
 
     Product deleteProduct(Long id) throws ProductNotFoundException;
 }

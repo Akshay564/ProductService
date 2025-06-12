@@ -1,6 +1,7 @@
 package com.example.productservice.services;
 
 import com.example.productservice.dtos.FakeStoreProductDto;
+import com.example.productservice.dtos.ProductCreateRequest;
 import com.example.productservice.exceptions.ProductNotFoundException;
 import com.example.productservice.models.Category;
 import com.example.productservice.models.Product;
@@ -45,7 +46,7 @@ public class FakeStoreProductService implements ProductService {
     }
 
     @Override
-    public Product replaceProduct(Long id, Product product) {
+    public Product replaceProduct(Long id, ProductCreateRequest product) throws ProductNotFoundException {
         FakeStoreProductDto fakeStoreProduct = mapToFakeStoreProductDto(product);
 
         RequestCallback requestCallback = restTemplate.httpEntityCallback(fakeStoreProduct, FakeStoreProductDto.class);
@@ -56,7 +57,7 @@ public class FakeStoreProductService implements ProductService {
     }
 
     @Override
-    public Product createProduct(Product product) {
+    public Product createProduct(ProductCreateRequest product) {
         FakeStoreProductDto fakeStoreProduct = mapToFakeStoreProductDto(product);
         FakeStoreProductDto fakeStoreProductFromServer =  restTemplate.postForObject(apiHost + "products", fakeStoreProduct, FakeStoreProductDto.class);
         return getProductFromFakeStoreProduct(fakeStoreProductFromServer);
@@ -75,7 +76,7 @@ public class FakeStoreProductService implements ProductService {
         return getProductFromFakeStoreProduct(fakeStoreProductDto);
     }
 
-    private FakeStoreProductDto mapToFakeStoreProductDto(Product product) {
+    private FakeStoreProductDto mapToFakeStoreProductDto(ProductCreateRequest product) {
         if (product == null) {
             return null;
         }

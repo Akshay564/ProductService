@@ -1,9 +1,15 @@
 package com.example.productservice.controllers;
 
+import com.example.productservice.dtos.ProductCreateRequest;
+import com.example.productservice.dtos.ProductResponse;
 import com.example.productservice.exceptions.ProductNotFoundException;
+import com.example.productservice.mappers.ProductMapper;
 import com.example.productservice.models.Product;
 import com.example.productservice.services.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,9 +19,11 @@ import java.util.List;
 public class ProductController {
 
     ProductService productService;
+    ProductMapper productMapper;
 
-    public ProductController(@Qualifier("selfProductService") ProductService productService) {
+    public ProductController(@Qualifier("selfProductService") ProductService productService, ProductMapper productMapper) {
         this.productService = productService;
+        this.productMapper = productMapper;
     }
 
     @GetMapping("{id}")
@@ -29,13 +37,17 @@ public class ProductController {
     }
 
     @PutMapping("{id}")
-    public Product updateProduct(@PathVariable Long id, @RequestBody Product product) {
-        return  productService.replaceProduct(id, product);
+    public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductCreateRequest request) throws ProductNotFoundException {
+        Product saved = productService.replaceProduct(id, request);
+        ProductResponse dto = productMapper.toDto(saved);
+        return  ResponseEntity.ok().body(dto);
     }
 
-    @PostMapping()
-    public Product createProduct(@RequestBody Product product) {
-        return productService.createProduct(product);
+    @PostMapping
+    public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductCreateRequest request) {
+        Product savedProduct = productService.createProduct(request);
+        ProductResponse dto = productMapper.toDto(savedProduct);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
     @DeleteMapping("{id}")
