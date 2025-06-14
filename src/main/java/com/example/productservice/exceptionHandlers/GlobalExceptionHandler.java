@@ -6,8 +6,10 @@ import com.example.productservice.models.CustomError;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,5 +41,23 @@ public class GlobalExceptionHandler {
         error.setStatus(HttpStatus.BAD_REQUEST.value());
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<CustomError> handleMissingRequestHeaderException(MissingRequestHeaderException ex) {
+        CustomError error = new CustomError();
+        error.setMessage(ex.getMessage());
+        error.setStatus(HttpStatus.BAD_REQUEST.value());
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<CustomError> handleResponseStatusException(ResponseStatusException ex) {
+        CustomError error = new CustomError();
+        error.setMessage(ex.getReason());
+        error.setStatus(ex.getStatusCode().value());
+
+        return new ResponseEntity<>(error, ex.getStatusCode());
     }
 }
