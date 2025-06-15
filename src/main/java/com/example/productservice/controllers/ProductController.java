@@ -31,10 +31,7 @@ public class ProductController {
     }
 
     @GetMapping("{id}")
-    public ProductResponse getProductById(@RequestHeader("Token") String token, @PathVariable Long id) throws ProductNotFoundException, ResponseStatusException {
-        if (!tokenService.validateToken(token)) {
-            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authorized to access this resource");
-        }
+    public ProductResponse getProductById(@PathVariable Long id) throws ProductNotFoundException, ResponseStatusException {
         Product product = productService.getProductById(id);
         return productMapper.toDto(product);
     }
